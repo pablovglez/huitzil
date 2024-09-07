@@ -1,0 +1,34 @@
+#!/bin/sh /etc/rc.common
+# "new(er)" style init script
+
+START=80
+APP=huitzil
+SERVICE_WRITE_PID=1
+SERVICE_DAEMONIZE=1
+
+# Function to read SYNC_INTERVAL from the config file
+read_config() {
+    API_HOST="$(uci_get huitzild.@huitzild[0].api_host)"
+    SYNC_INTERVAL="$(uci_get huitzild.@huitzild[0].sync_interval)"
+}
+
+start() {
+    read_config
+    # Start the background process with the SYNC_INTERVAL from the config file
+    /usr/bin/huitzil_loop "$API_HOST" "$SYNC_INTERVAL" > /dev/null 2>&1 &
+}
+
+stop() {
+    # Stop the background process by killing it
+    kill $(cat /var/run/huitzild.pid 2>/dev/null) 2>/dev/null
+    kill $(pgrep -f /usr/bin/huitzil_loop) 2>/dev/null
+}
+
+restart() {
+    stop
+    start
+}
+
+service_triggers() {
+    procd_add_reload_trigger "huitzild"
+}

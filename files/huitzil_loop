@@ -1,0 +1,16 @@
+#!/bin/sh
+
+echo $$ > /var/run/huitzil.pid   # Save the process ID to a file for later use in stopping the process.
+
+main() {
+  API_HOST=$1
+  SYNC_INTERVAL=$2
+
+  while true; do
+      huitzil -a $API_HOST # Replace with the actual command you want to run
+      sleep $SYNC_INTERVAL  # Set the interval time in seconds (e.g., 60 seconds)
+  done
+}
+
+main "$@"
+exit $?
